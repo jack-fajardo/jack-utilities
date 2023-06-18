@@ -2,11 +2,7 @@ import React, { useState } from "react";
 import { Input, Text } from '@chakra-ui/react'
 import { CURRENCIES } from '../src/constants.js' ;
 
-const flag = 3;
-
-const validate = (num: string) => {
-  return /^[.,0-9]+$/.test(num);
-}
+const flag = 1;
 
 export const App: React.FC = () => {
   const [locale] = useState<string>(CURRENCIES[flag].locale);
@@ -14,6 +10,10 @@ export const App: React.FC = () => {
   const [isInvalid, setIsInvalid] = useState<boolean>(false);
   const [number, setNumber] = useState<string>("");
   const [currency, setCurrency] = useState<string>("");
+
+  const validate = (num: string) => {
+    return /^[.,0-9]+$/.test(num);
+  }
 
   const checkIfEmpty = (n: string) => {
     if (!n) {
