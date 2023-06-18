@@ -1,27 +1,46 @@
 import React, { useState } from "react";
 import { Input, Text } from '@chakra-ui/react'
 
-const CURRENCY_CODE = '$';
-
-const format = (num: string) => {
-  return num.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const validate = (num: string) => {
+  return /^[.,0-9]+$/.test(num);
 }
 
-const formatter = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+const formatter = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'});
 
 export const App: React.FC = () => {
+  const [isInvalid, setIsInvalid] = useState<boolean>(false);
   const [number, setNumber] = useState<string>("");
   const [currency, setCurrency] = useState<string>("");
+
+
+  const checkIfEmpty = (n: string) => {
+    if (!n) {
+      setCurrency('');
+      setNumber('');
+      return true;
+    }
+    return false;
+  }
 
   const onFocus = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCurrency(number);
   };
 
   const onBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsInvalid(false);
+
     const {
       target: { value }
     } = event;
+    if (checkIfEmpty(value)) {return;}
+
     const newValue = formatter.format(value);
+    
+    if (newValue.toString().includes("NaN")) {
+      setIsInvalid(true);
+      setCurrency(number);
+      return;
+    }
 
     setCurrency(newValue);
   };
@@ -31,6 +50,12 @@ export const App: React.FC = () => {
       target: { value }
     } = event;
 
+    if (checkIfEmpty(value)) {return;}
+
+    const lastChar = value[value.length - 1];
+    const pass = validate(lastChar);
+       
+    if (!pass) {return;}
     setCurrency(value);
     setNumber(value);
   };
@@ -43,11 +68,13 @@ export const App: React.FC = () => {
         onFocus={(e) => onFocus(e)}
         onBlur={(e) => onBlur(e)}
         placeholder="Enter an amount"
+        isInvalid={isInvalid}
+        errorBorderColor='crimson'
       />
       <br/><br/>
       {
         currency && (
-          <Text fontSize="3xl">{CURRENCY_CODE} {currency}</Text>
+          <Text fontSize="3xl">{currency}</Text>
         )
       }
     </div>
